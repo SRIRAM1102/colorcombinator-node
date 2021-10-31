@@ -175,11 +175,11 @@ app.put("/closet",async(req,res)=>{
 
 //   })
 
-  // {$push:{"top.light":{$each:["sandybrown","rose","skyblue"]}}},
-  //         {$push:{"top.dark":{$each:["black","navy","grey"]}}},
-  //         {$push:{"bottom.light":{$each:["white","tan","lightgrey"]}}},
-  //         {$push:{"bottom.dark":{$each:["darkcany","darkslategray","darkgoldenrod"]}}}
-//ideas from closet
+//   {$push:{"top.light":{$each:["sandybrown","rose","skyblue"]}}},
+//           {$push:{"top.dark":{$each:["black","navy","grey"]}}},
+//           {$push:{"bottom.light":{$each:["white","tan","lightgrey"]}}},
+//           {$push:{"bottom.dark":{$each:["darkcany","darkslategray","darkgoldenrod"]}}}
+// ideas from closet
 
 //get
 app.post("/tourdata",async(req,res)=>{
