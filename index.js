@@ -7,16 +7,17 @@ import  jwt  from "jsonwebtoken";
 import nodemailer from "nodemailer"
 // import {auth} from "./middleware/auth.js"
 
-const PORT=3001;
-const MONGO_URL=" mongodb+srv://sriram1102:sri1102@cluster0.jw0oa.mongodb.net";
-const UNIQUE_KEY="This is unique one";
 const app=express();
 app.use(express.json());
 app.use(cors());
+dotenv.config();
+
+const PORT=process.env.PORT
+const MONGO_URL=process.env.MONGO_URL;
 
 //Mongodb Connect
-export async function createConnection()
-{
+export async function createConnection() 
+{  
   const client=new MongoClient(MONGO_URL);
   return await client.connect();
 }
@@ -54,17 +55,19 @@ app.post("/signup",async(req,res)=>{
                    emailId:emailId,
                    userPassword:hashedpassword,
                    top:{"light":[],"dark":[]},
-                   bottom:{"light":[],"dark":[]}
+                   bottom:{"light":[],"dark":[]},
+                   tourdata:{}
            });
 
+         
            
 var transporter = nodemailer.createTransport({
-  service: 'outlook',
+  service: 'outlook', 
   auth: {
     user: 'sriramsaravanan11@outlook.com',
     pass: 'Sriram4924'
   }
-}); 
+});           
 
 var mailOptions = {  
   from: 'sriramsaravanan11@outlook.com',
@@ -112,7 +115,7 @@ app.post("/login",async(req,res)=>{
      
      if(ispasstrue)
         {
-          const token=jwt.sign({id:value._id},UNIQUE_KEY);
+          const token=jwt.sign({id:value._id},process.env.UNIQUE_KEY);
            res.send({token:token,id:value._id,value:value});
        }
         else{
@@ -120,7 +123,7 @@ app.post("/login",async(req,res)=>{
         }
       }   
         else
-      {
+      {    
         res.send({msg:"wrong user"});
       
       }
@@ -128,48 +131,49 @@ app.post("/login",async(req,res)=>{
 
 //closet
 
-// app.put("/closet",async(req,res)=>{
-//   const{portion,color,index,id} =req.body;
-//  const client = await createConnection();
-//   if(portion=="top" && index<30 ){
-//      const result = await client
-//           .db("colorcombinator")
-//           .collection("user")
-//           .updateOne({_id:ObjectId(id)},{$push:{"top.light":color}})
-//     }
-//     else if(portion=="top" && index>30 ){
-//       const result = await client
-//       .db("colorcombinator")
-//       .collection("user")
-//       .updateOne({_id:ObjectId(id)},{$push:{"top.dark":color}})
-//     }
-
-//    else if(portion=="bottom" && index<30){ 
-//      const result = await client
-//     .db("colorcombinator")
-//     .collection("user")
-//     .updateOne({_id:ObjectId(id)},{$push:{"bottom.light":color}})
-//     }   
-
-//     else{
-//       const result = await client
-//       .db("colorcombinator")
-//       .collection("user")
-//       .updateOne({_id:ObjectId(id)},{$push:{"bottom.dark":color}})
-//     }
-// })
-
-
 app.put("/closet",async(req,res)=>{
   const{portion,color,index,id} =req.body;
  const client = await createConnection();
-
+  if(portion=="top" && index<30 ){
      const result = await client
           .db("colorcombinator")
           .collection("user")
-          .updateOne({_id:ObjectId(id)}, {$push:{"bottom.dark":{$each:["darkcany","darkslategray","darkgoldenrod"]}}} )
+          .updateOne({_id:ObjectId(id)},{$push:{"top.light":color}})
+    }
+    else if(portion=="top" && index>30 ){
+      const result = await client
+      .db("colorcombinator")
+      .collection("user")
+      .updateOne({_id:ObjectId(id)},{$push:{"top.dark":color}})
+    }
 
-  })
+   else if(portion=="bottom" && index<30){ 
+     const result = await client
+    .db("colorcombinator")
+    .collection("user")
+    .updateOne({_id:ObjectId(id)},{$push:{"bottom.light":color}})
+    }   
+
+    else{
+      const result = await client
+      .db("colorcombinator")
+      .collection("user")
+      .updateOne({_id:ObjectId(id)},{$push:{"bottom.dark":color}})
+    }
+})
+
+
+
+// app.put("/closet",async(req,res)=>{
+//   const{portion,color,index,id} =req.body;
+//  const client = await createConnection();
+
+//      const result = await client
+//           .db("colorcombinator")
+//           .collection("user")
+//           .updateOne({_id:ObjectId(id)}, {$push:{"bottom.dark":{$each:["darkcany","darkslategray","darkgoldenrod"]}}} )
+
+//   })
 
   // {$push:{"top.light":{$each:["sandybrown","rose","skyblue"]}}},
   //         {$push:{"top.dark":{$each:["black","navy","grey"]}}},
@@ -177,20 +181,46 @@ app.put("/closet",async(req,res)=>{
   //         {$push:{"bottom.dark":{$each:["darkcany","darkslategray","darkgoldenrod"]}}}
 //ideas from closet
 
-app.post("/ideas",async(req,res)=>{
-  const{id,preTopColor,preBotColor}=req.body;
-  console.log(id,preTopColor,preBotColor);
-  // var topIndex=
+//get
+app.post("/tourdata",async(req,res)=>{
+  const{id}=req.body;
+
   const client = await createConnection();
   const result = await client
     .db("colorcombinator")
-    .collection("user")
-    .findOne({_id:ObjectId(id)})
- 
-    
-  res.send(result);
+    .collection("user")   
+    .findOne({"_id":ObjectId(id)});
+    console.log(result.tourdata);
+ res.send(result);
 })
 
-app.pos
+app.put("/tourpack",async(req,res)=>{
+  const{id,tourname}=req.body;
+  var key=`tourdata.${tourname}`;
+  
+  console.log(id,tourname,key);  
+  const client = await createConnection();
+  const result = await client
+    .db("colorcombinator")
+    .collection("user")   
+    .updateOne({_id:ObjectId(id)},{$push:{[key]:[]} } );
+ res.send(result);
+})
+
+app.put("/singledata",async(req,res)=>{  
+  const{id,tourname,data}=req.body;  
+  var key=`tourdata.${tourname}`;
+  console.log(id,tourname,key,data);  
+  const client = await createConnection();
+  const result = await client  
+    .db("colorcombinator")
+    .collection("user")
+    .updateOne({_id:ObjectId(id)},  { $addToSet: { [key]:  data  } });
+ res.send(result);
+})          
+
+     
+ //  tourdata:{goa:[{day:1,top:"ds",bottom:"fvd",style:"formal"}]  }
 app.listen(PORT,()=>console.log("sev started"));
 
+  
