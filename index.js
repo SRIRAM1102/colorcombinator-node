@@ -220,6 +220,9 @@ app.put("/singledata",async(req,res)=>{
  res.send(result);
 })          
 
+app.get("/get",(req,res)=>{
+  res.send("working");
+})
      
  //  tourdata:{goa:[{day:1,top:"ds",bottom:"fvd",style:"formal"}]  }
 app.listen(PORT,()=>console.log("sev started"));
