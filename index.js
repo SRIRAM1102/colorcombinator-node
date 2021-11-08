@@ -132,91 +132,49 @@ app.post("/login",async(req,res)=>{
 //closet
 
 app.put("/closet",async(req,res)=>{
-  const{portion,color,index,id} =req.body;
+  const{portion,color,shade,id} =req.body;
+  var dress=`${portion}.${shade}`;
+
  const client = await createConnection();
-  if(portion=="top" && index<30 ){
-     const result = await client
+const result = await client
           .db("colorcombinator")
-          .collection("user")
-          .updateOne({_id:ObjectId(id)},{$push:{"top.light":color}})
-    }
-    else if(portion=="top" && index>30 ){
-      const result = await client
-      .db("colorcombinator")
-      .collection("user")
-      .updateOne({_id:ObjectId(id)},{$push:{"top.dark":color}})
-    }
-
-   else if(portion=="bottom" && index<30){ 
-     const result = await client
-    .db("colorcombinator")
-    .collection("user")
-    .updateOne({_id:ObjectId(id)},{$push:{"bottom.light":color}})
-    }   
-
-    else{
-      const result = await client
-      .db("colorcombinator")
-      .collection("user")
-      .updateOne({_id:ObjectId(id)},{$push:{"bottom.dark":color}})
-    }
+         .collection("user")          
+          .updateOne({_id:ObjectId(id)},{$push:{[dress]:color}})
+ const value=await client
+            .db("colorcombinator")
+           .collection("user")          
+           .findOne({_id:ObjectId(id)});
+              res.send(value);
 })
 
 
 
-// app.put("/closet",async(req,res)=>{
-//   const{portion,color,index,id} =req.body;
-//  const client = await createConnection();
-
-//      const result = await client
-//           .db("colorcombinator")
-//           .collection("user")
-//           .updateOne({_id:ObjectId(id)}, {$push:{"bottom.dark":{$each:["darkcany","darkslategray","darkgoldenrod"]}}} )
-
-//   })
-
-//   {$push:{"top.light":{$each:["sandybrown","rose","skyblue"]}}},
-//           {$push:{"top.dark":{$each:["black","navy","grey"]}}},
-//           {$push:{"bottom.light":{$each:["white","tan","lightgrey"]}}},
-//           {$push:{"bottom.dark":{$each:["darkcany","darkslategray","darkgoldenrod"]}}}
-// ideas from closet
 
 //get
 app.post("/tourdata",async(req,res)=>{
   const{id}=req.body;
-
-  
   const client = await createConnection();
   const result = await client
     .db("colorcombinator")
     .collection("user")   
     .findOne({"_id":ObjectId(id)});
-    console.log(result.tourdata);
+    
  res.send(result);
+ console.log(result)
 })
 
-app.put("/tourpack",async(req,res)=>{
-  const{id,tourname}=req.body;
-  var key=`tourdata.${tourname}`;
-  
-  console.log(id,tourname,key);  
-  const client = await createConnection();
-  const result = await client
-    .db("colorcombinator")
-    .collection("user")   
-    .updateOne({_id:ObjectId(id)},{$push:{[key]:[]} } );
- res.send(result);
-})
 
-app.put("/singledata",async(req,res)=>{  
+
+app.put("/tourpackdata",async(req,res)=>{  
   const{id,tourname,data}=req.body;  
   var key=`tourdata.${tourname}`;
   console.log(id,tourname,key,data);  
   const client = await createConnection();
+
   const result = await client  
     .db("colorcombinator")
     .collection("user")
-    .updateOne({_id:ObjectId(id)},  { $addToSet: { [key]:  data  } });
+    .updateOne({_id:ObjectId(id)}, { $addToSet: { [key]: { $each: data } } } );
  res.send(result);
 })          
 
@@ -227,4 +185,4 @@ app.get("/get",(req,res)=>{
  //  tourdata:{goa:[{day:1,top:"ds",bottom:"fvd",style:"formal"}]  }
 app.listen(PORT,()=>console.log("sev started"));
 
-  
+   
