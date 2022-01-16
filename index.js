@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import {MongoClient,ObjectId} from "mongodb";
 import cors from "cors";
 import  jwt  from "jsonwebtoken";
-import nodemailer from "nodemailer"
+
 
 
 const app=express();
@@ -60,29 +60,7 @@ app.post("/signup",async(req,res)=>{
            });
 
          
-           
-var transporter = nodemailer.createTransport({
-  service: 'outlook', 
-  auth: {
-    user: 'sriramsaravanan11@outlook.com',
-    pass: 'Sriram4924'
-  }
-});           
-
-var mailOptions = {  
-  from: 'sriramsaravanan11@outlook.com',
-  to: emailId,
-  subject: 'Welcome message',
-  text: 'Colorcombinator welcomes you!!'
-};
-
-transporter.sendMail(mailOptions, function(error, info){
-  if (error) {
-    console.log(error);
-  } else { 
-    console.log('Email sent: ' + info.response);
-  }
-});
+res.send({ sucess: "user created" });
     }
 else{
   res.send({msg:"existing mailid"})
